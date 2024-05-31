@@ -25,34 +25,15 @@ static int conv_function(int num_msg, const struct pam_message **msg, struct pam
 	return PAM_SUCCESS;
 }
 
-int main(void)
+int login(const char *username, const char *password)
 {
+	int retval;
+
 	pam_handle_t *pamh = NULL;
 
-	int retval;
-	const char *username;
-	const char *password;
-	char user[256];
-	char pass[256];
-
-	printf("User name: ");
-	scanf("%255s", user);
-	username = user;
-
-	printf("password: ");
-	scanf("%255s", pass);
-	password = pass;
-
-	// const char *data[2] = {user, *pass};
 	struct pam_conv conv = {conv_function, (char *)password};
 
 	retval = pam_start("login-pam-example", username, &conv, &pamh);
-	/*
-	if (retval == PAM_SUCCESS)
-	{
-		retval = pam_set_item(pamh, PAM_AUTHTOK, (const char *)pass);
-	}
-	*/
 
 	if (retval == PAM_SUCCESS)
 	{
@@ -66,8 +47,9 @@ int main(void)
 
 	if (retval == PAM_SUCCESS)
 	{
-		printf("login successful\n");
+		printf("login successful \n");
 	}
+
 	else
 	{
 		printf("auth failed: %s\n", pam_strerror(pamh, retval));
@@ -81,4 +63,23 @@ int main(void)
 	}
 
 	return (retval == PAM_SUCCESS ? 0 : 1);
+}
+			
+
+int main(void)
+{
+	int status;
+
+	char user[256];
+	char pass[256];
+
+	printf("User name: ");
+	scanf("%255s", user);
+
+	printf("password: ");
+	scanf("%255s", pass);
+
+	status = login(user, pass);
+
+	return status;
 }
