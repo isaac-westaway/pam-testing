@@ -9,7 +9,18 @@
 static int conv_function(int num_msg, const struct pam_message **msg, struct pam_response **resp,
 			void *appdata_ptr)
 {
-	printf("pam conv function");
+	printf("pam conv function\n");
+
+	struct pam_response *response = (struct pam_response *)malloc(num_msg *
+									sizeof(struct pam_response));
+
+	for (int i = 0; i < num_msg; i++)
+	{
+		response[i].resp = strdup((const char *)appdata_ptr);
+		response[i].resp_retcode = 0;
+	}
+
+	*resp = response;
 
 	return PAM_SUCCESS;
 }
@@ -20,24 +31,28 @@ int main(void)
 
 	int retval;
 	const char *username;
+	const char *password;
 	char user[256];
-	// char pass[256];
+	char pass[256];
 
 	printf("User name: ");
 	scanf("%255s", user);
 	username = user;
 
-	const char *pass[256] = {"i", "s", "a", "a", "c", "w","e","s","t","a","w","a","y", "\0"};
+	printf("password: ");
+	scanf("%255s", pass);
+	password = pass;
 
-	const char *data[2] = {user, *pass};
-	struct pam_conv conv = {conv_function, data};
+	// const char *data[2] = {user, *pass};
+	struct pam_conv conv = {conv_function, (char *)password};
 
 	retval = pam_start("login-pam-example", username, &conv, &pamh);
-	
+	/*
 	if (retval == PAM_SUCCESS)
 	{
 		retval = pam_set_item(pamh, PAM_AUTHTOK, (const char *)pass);
 	}
+	*/
 
 	if (retval == PAM_SUCCESS)
 	{
